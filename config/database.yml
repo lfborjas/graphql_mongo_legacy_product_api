@@ -13,20 +13,21 @@ default: &default
   adapter: mysql2
   encoding: utf8
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password:
-  socket: /tmp/mysql.sock
+  username: mage_rw
+  password: <%= ENV.fetch("MAGE_RW_PASSWORD") %>
+  host: 127.0.0.1
+  port: 3316
 
 development:
   <<: *default
-  database: graphql_mongo_product_api_development
+  database: magento_birchbox
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: graphql_mongo_product_api_test
+  database: graphql_rails_user_api_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -49,6 +50,6 @@ test:
 #
 production:
   <<: *default
-  database: graphql_mongo_product_api_production
-  username: graphql_mongo_product_api
-  password: <%= ENV['GRAPHQL_MONGO_PRODUCT_API_DATABASE_PASSWORD'] %>
+  database: graphql_rails_user_api_production
+  username: graphql_rails_user_api
+  password: <%= ENV['GRAPHQL_RAILS_USER_API_DATABASE_PASSWORD'] %>
