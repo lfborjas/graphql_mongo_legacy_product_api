@@ -68,6 +68,16 @@ key not found: "MAGE_RW_PASSWORD" (KeyError)
 
 It may be due to `spring` caching stuff. Try `spring stop`.
 
+### Importing development data
+
+There's a janky way to import products from the legacy data store (mysql+solr) to mongo:
+
+```ruby
+LegacyProduct.export_to_mongo(limit: 50)
+```
+
+Will take the 50 latest products in your legacy database, look them up in solr (not all of them will be there) and put them into your local mongo `products` collection. `LegacyProduct.export_to_mongo(id: 111)` will do the same for the product whose ID is specified.
+
 ### Generating models
 
 for this little project, we're not doing migrations (working with an existing legacy db) nor fixtures; so I've been using this command to at least put the right files in the right place (note that `rails` is now in `bin`):
