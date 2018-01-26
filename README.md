@@ -11,6 +11,17 @@
 
 * Database initialization: the default database.yml assumes you're tunneling back to your dev box's copy of the legacy database on port 3316; if you set up your tunnels in your ssh config (instead of running ad-hoc) you need to have a session open (ssh to your dev box on another terminal tab).
 
+One Janky thing I did is that I just created a small bash script called `env.sh` to load my env vars, e.g.
+
+```
+λ ~/birchbox/graphql_mongo_product_api/ master cat env.sh 
+export MAGE_URI="https://www.luis-beta.dev.birchbox.com"
+export MAGE_RW_PASSWORD=wouldntyouliketoknow
+export LEGACY_SOLR_URI="http://solr.luis-beta.dev.birchbox.com:8080/solr440/products"
+```
+
+And then just `source env.sh` to have them available (adding a new env var requires the spring preloader to be stopped, if not, rails is not going to find it and you'll pull your hair). There's gems for this kind of thing: https://github.com/bkeepers/dotenv and of course for the actual secrets (vs. env-dependent config values), one can resort to [rails's secrets.yml](http://guides.rubyonrails.org/4_1_release_notes.html#config-secrets-yml)
+
 ### Install dependencies
 
 ```
@@ -29,6 +40,20 @@ Loading development environment (Rails 5.1.4)
   SQL (14.5ms)  select * from customer_entity limit 1;
  => #<ActiveRecord::Result:0x007f8391576d10 @columns=["entity_id", "entity_type_id", "attribute_set_id", "website_id", "email", "group_id", "increment_id", "store_id", "created_at", "updated_at", "is_active"], @rows=[[3, 1, 0, 1, "3@3.net", 7, "", 1, 2010-08-23 22:04:48 UTC, 2010-12-21 18:00:09 UTC, 1]], @hash_rows=nil, @column_types={}> 
  :007 > 
+```
+
+### Check your solr connection
+
+```bash
+λ ~/birchbox/graphql_mongo_product_api/ master bin/rails console
+Running via Spring preloader in process 21761
+Loading development environment (Rails 5.1.4)
+2.2.2 :001 > solr_url = ENV["LEGACY_SOLR_URI"]
+ => "http://solr.luis-beta.dev.birchbox.com:8080/solr440/products" 
+2.2.2 :002 > solr = RSolr.connect url: solr_url
+ => #<RSolr::Client:0x007fc6a1e70b20 @uri=#<URI::HTTP http://solr.luis-beta.dev.birchbox.com:8080/solr440/products/>, @proxy=nil, @connection=nil, @update_format=RSolr::JSON::Generator, @update_path="update", @options={:url=>"http://solr.luis-beta.dev.birchbox.com:8080/solr440/products"}> 
+2.2.2 :003 > r = solr.get 'select', params: {q: "id:111", fl: "id,product_name"}
+ => {"responseHeader"=>{"status"=>0, "QTime"=>0, "params"=>{"fl"=>"id,product_name", "q"=>"id:111", "wt"=>"json"}}, "response"=>{"numFound"=>1, "start"=>0, "docs"=>[{"id"=>"111", "product_name"=>"blowPro Blow Up Thickening Mist"}]}}
 ```
 
 If anything explodes, it's likely your db config is wonky (faulty tunnel, creds don't match what's in config/database.yml, MAGE_RW_PASSWORD not set, etc).
