@@ -15,14 +15,19 @@ describe "Single Product Query" do
     end
     res
   }
-  let(:query) do
-    <<-GRAPHQL
-      query{
-        product(id: $product_id){
-          id
-          title
+
+  context "simple product representation" do
+    let(:query) {
+      <<-GRAPHQL
+        query{
+          product(id: $productId){
+            id
+            title
+         }
         }
-      }
-    GRAPHQL
+      GRAPHQL
+    }
+    let(:variables){ }
+    
   end
 end
